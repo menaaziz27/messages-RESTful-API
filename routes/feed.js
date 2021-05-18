@@ -1,6 +1,6 @@
 const express = require('express');
-const { body } = require('express-validator');
 const router = express.Router();
+const { postValidate } = require('../helpers/validation');
 
 const {
 	getPosts,
@@ -10,16 +10,16 @@ const {
 	deletePost,
 } = require('../controllers/feed');
 
-const postValidate = [
-	body('title').trim().isLength({ min: 5 }),
-	body('content').trim().isLength({ min: 5 }),
-];
+const isAuth = require('../middleware/isAuth');
 
-router.route('/posts').get(getPosts).post(postValidate, createPost);
+router
+	.route('/posts')
+	.get(isAuth, getPosts)
+	.post(isAuth, postValidate, createPost);
 router
 	.route('/posts/:id')
-	.get(getPost)
-	.put(postValidate, updatePost)
-	.delete(deletePost);
+	.get(isAuth, getPost)
+	.put(isAuth, postValidate, updatePost)
+	.delete(isAuth, deletePost);
 
 module.exports = router;
